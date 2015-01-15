@@ -1,0 +1,5 @@
+#!/bin/sh
+# Usage:
+#   ascompiler foo.as
+# See README.md.
+(echo ")set breakmode quit"; echo ")compile $1") | fricas -nosman

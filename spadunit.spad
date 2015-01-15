@@ -1,0 +1,94 @@
+-------------------------------------------------------------------
+--
+-- SPADUNIT
+-- Copyright (C) 2010, 2015,  Ralf Hemmecke <ralf@hemmecke.org>
+--
+-------------------------------------------------------------------
+-- This program is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation, either version 3 of the License, or
+-- (at your option) any later version.
+--
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+--
+-- You should have received a copy of the GNU General Public License
+-- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+)if LiterateDoc
+\documentclass{article}
+\usepackage{literatedoc}
+\begin{document}
+\title{Unit testing with SPAD}
+\author{Ralf Hemmecke}
+\date{03-Jan-2015}
+\maketitle
+\begin{abstract}
+  We provide a simplified framework to do unit testing in SPAD.
+  Since that actual framework is implemented using automake's testing
+  framework, the only thing that we provide here is a package with a
+  number of assert function.
+\end{abstract}
+
+\tableofcontents
+
+\section{SpadUnit0}
+This is a very basic package that only checks for true or false.
+)endif
+
+)abbrev package SPADZERO SpadUnit0
+SpadUnit0(): with
+    assertTrue:  Boolean -> Void
+    assertFalse: Boolean -> Void
+  == add
+    import from PrintPackage
+    throwException(): Void == EXIT_-WITH_-STATUS(1$Integer)$Lisp
+
+    assertTrue(b: Boolean): Void ==
+        b => void()
+        print("Expected true, but got false.")
+        throwException()
+
+    assertFalse(b: Boolean): Void ==
+        not b => void()
+        print("Expected false, but got true.")
+        throwException()
+
+
+)if LiterateDoc
+\section{SpadUnit}
+
+The following package comes with a type parameter, because adding the
+type explicitly as a first parameter in the \texttt{assertEquals}
+function requires dependent types which is currently (03-Jan-2015) not
+supported by the SPAD compiler.
+)endif
+
+)abbrev package SPADUNIT SpadUnit
+SpadUnit(T: SetCategory): with
+    assertEquals:    (T, T) -> Void
+    assertNotEquals: (T, T) -> Void
+  == add
+    import from PrintPackage
+    throwException(): Void == EXIT_-WITH_-STATUS(1$Integer)$Lisp
+
+    assertEquals(x: T, y: T): Void ==
+        x = y => void()
+        print("Expected equal values, but got the following.")
+        print("Value 1:")
+        print(x::OutputForm)
+        print("Value 2:")
+        print(y::OutputForm)
+        throwException()
+
+    assertNotEquals(x: T, y: T): Void ==
+        not(x = y) => void()
+        print("Expected unequal values, but both values equal ...")
+        print(x::OutputForm)
+        throwException()
+
+)if LiterateDoc
+\end{document}
+)endif

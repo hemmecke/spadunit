@@ -1,0 +1,5 @@
+#!/bin/sh
+# Usage:
+#  interpreter foo.input
+# See README.md.
+(echo ")set breakmode quit"; echo ")read $1") | fricas -nosman
