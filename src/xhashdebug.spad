@@ -1,0 +1,72 @@
+-- The following domain has an identical representation as XHashTable.
+-- It exports a few functions (that are not exported from XHashTable)
+-- in order to test internal behavior of XHashTable.
+
+rep x ==> (x@%) pretend Rep
+per x ==> (x@Rep) pretend %
+
+N ==> NonNegativeInteger
+Z ==> Integer
+I ==> SingleInteger
+
+)abbrev domain TXHASH TestXHashTable
+TestXHashTable(Key: SetCategory, Entry: Type):
+  Join(TableAggregate(Key, Entry), finiteAggregate, shallowlyMutable) with
+    bucketSize: % -> Z
+        ++ bucketSize(x) returns the number of buckets in the intenal
+        ++ representation of x.
+    position: (%, Key) -> Z
+        ++ position(x, k) returns the position in the internal bucket
+        ++ array (range 0 to n-1 where n is bucketSize(x)) where k would
+        ++ be stored if x where completely empty.
+    probingLength: (%, Key) -> Z
+        ++ probingLength(x, k) returns the number ob buckets that are
+        ++ already filled before k is found. If k is found at
+        ++ position(x,k) then 0 is returned. If k is not found, -1 is
+        ++ returned.
+
+ == XHashTable(Key, Entry) add
+    Marker ==> None
+    toMarker mk ==> mk@Marker -- note that MKey==Marker==UMKE
+    VACANT : Marker := (HASHTABLEVACANT$Lisp)  pretend Marker -- pos never used
+    DELETED: Marker := (HASHTABLEDELETED$Lisp) pretend Marker -- pos is deleted
+    vacant?(mk)  ==> EQ(toMarker mk, VACANT)$Lisp
+    deleted?(mk) ==> EQ(toMarker mk, DELETED)$Lisp
+    key?(mk) ==> not (vacant? mk or deleted? mk)
+    MKey ==> None
+    UMKE ==> None
+    Buckets ==> PrimitiveArray UMKE
+    numOfBuckets(a) ==> shift(#a, -1)
+    toUMKE x ==> x pretend UMKE
+    toKey k ==> (k@UMKE) pretend Key
+    getMKey(a, i)    ==> ((a.i)@UMKE) pretend MKey
+    Rep ==> Record(_
+        numOfEntries: Z,_
+        maxNumOfEntries: Z,_
+        numOfDeletedEntries: Z,_
+        maxNumOfVirtualEntries: Z,_
+        idx: Z,_
+        arr: Buckets,_
+        hashFunction: Key -> I)
+    hashFun(x: %): Key -> I == rep(x).hashFunction
+    bucketSize(x: %): Z == numOfBuckets(rep(x).arr) :: Z
+    position(x: %, k: Key): Z == positiveRemainder(hashFun(x) k, bucketSize x)
+    probingLength(x: %, k: Key): Z ==
+        a: Buckets := rep(x).arr
+        h: Key -> I := hashFun x
+        n: Z := numOfBuckets a
+        h1: Z := (h k)::Z
+        l: Z := 0
+        p: Z := positiveRemainder(h1, n) -- position in array
+        -- We make sure the second hash is coprime with n.
+        h2: Z := 1 + positiveRemainder(h1, n-2)
+        mk: MKey := getMKey(a, p)
+        -- We know that there are vacant slots in the array.
+        -- The while loop must terminate since n and h2 are coprime.
+        while not vacant? mk repeat
+            not deleted? mk and k = toKey mk => return l
+            l := inc l
+            p := p + h2
+            if p>=n then p := p-n
+            mk := getMKey(a, p)
+        -1 -- I've hit a vacant position (key not found).
