@@ -57,7 +57,7 @@ include testsrc/deps.mk
 
 TEST_EXTENSIONS = .input
 INPUT_LOG_COMPILER = ${interpreter}
-check_SCRIPTS = interpreter
+check_SCRIPTS = interpreter ascompiler spadcompiler
 
 # We have to give rules how the generate the respective files for each
 # of the TEST_EXTENSIONS.
