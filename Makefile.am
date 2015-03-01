@@ -31,6 +31,10 @@ CLEANFILES = \
   $(check_DATA) \
   libdb.text \
   spadunit.log \
+  *.ao \
+  *.asy \
+  *.fasl \
+  *.lsp \
   *~
 
 clean-local:
@@ -52,7 +56,7 @@ include testsrc/tests.mk
 include testsrc/xfailtests.mk
 
 # Build rules for the testfiles from their respective sources.
-include testsrc/deps.mk
+include testsrc/rules.mk
 
 
 TEST_EXTENSIONS = .input
