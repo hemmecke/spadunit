@@ -1,0 +1,21 @@
+--test:expsparse
+-- Check that exp(x)*exp(y)=exp(x+y) for all complex numbers x and y.
+Z==>Integer
+Q==>Fraction Z
+vl: List Symbol := ['x, 'y]
+V ==> OrderedVariableList vl
+P ==> SparseMultivariatePolynomial(Q, V)
+M ==> SparseMultivariateTaylorSeries(Q, V, P)
+I ==> IndexedExponents V
+
+X: M := monomial(1$M, 'x, 1)
+Y: M := monomial(1$M, 'y, 1)
+s := exp(X)*exp(Y)-exp(X+Y)
+vx := index(1)$V; ix := monomial(1, vx)$I;
+vy := index(2)$V; iy := monomial(1, vy)$I;
+
+cs := [[coefficient(s, nx*ix+ny*iy) for ny in 0..10] for nx in 0..10];
+cs1 := map(removeDuplicates, cs)
+cs2 := removeDuplicates cs1
+assertEquals(cs2, [[0]])
+--endtest

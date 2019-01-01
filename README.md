@@ -5,18 +5,79 @@ This testing framework is basically the standard
 [automake](https://www.gnu.org/software/automake/) test framework with
 parallel builds enabled. It is written for
 [FriCAS](http://fricas.github.io), but is actually (relatively)
-independent of FriCAS, we therefore write PanAxiom in the following to
-emphasize that SpadUnit can potentially also be useful for
+independent of FriCAS, so that it can also made to work with
 [Axiom](http://axiom-developer.org) and
 [OpenAxiom](http://open-axiom.org).
 
 There are, however, a few features of FriCAS that must be available,
 see Section [PanAxiom Conditions](#panaxiom-conditions).
 
+Installation
+------------
+
+In order to work with SpadUnit, it is enoough to clone the sources
+from Github.
+
+    git clone https://github.com/hemmecke/spadunit.git
+
+
+How to use SpadUnit
+-------------------
+
+SpadUnit wants to know two things, a project directory and a test
+directory.
+You initialize SpadUnit by calling
+
+    make PROJECT=/path/to/toplevel/projectdir TESTDIR=/path/to/test
+
+The path for `PROJECT` should be an absolute path pointing to the
+top-level directory of the project that you want to test.
+During `make check` SpadUnit looks for an optional
+executable `$PROJECT/prepare-spadunit` that is called in order to
+compile your project before the tests can be run.
+
+The directory `$TESTDIR` contains the directory that contains the 
+test files of the form `*.input.test`.
+Look into `projects/fricas/test` for examples of such test files.
+
+If the test directory contains files with extension `.spad`, they
+will be compiled before the test files are run.
+
+If the parameter `TESTDIR` is missing from the `make` call,
+it is equivalent to `$PROJECT/test`.
+
+If the parameter `PROJECT` is missing, it defaults to
+`${pwd}/project`. In other words, if you have a project in
+`/path/to/project` with a subdirectory `/path/to/project/tests`
+that contains the test files, then it is enough to say
+
+    cd spadunit
+    ln -s /path/to/project project
+    make
+
+In order to actually run the tests, simply call
+
+    make check
+
+You might also consider a silent and parallel run.
+
+    make -s -j8 check
+
+Note that `$PROJECT/prepare-spad` is called each time when
+`make check` is invoked, which gives you a hook to recompile
+your project in case anything changed.
+
+SpadUnit will automatically recreate the `.input` files from the
+`.input.test` files if it detects any modification.
+
+
+Further notes
+-------------
+
 The test framework takes its tests from `*.EXT.test` files where `EXT`
 is one of the extensions mentioned in `TEST_EXTENSIONS` in
-`Makefile.am`. Depending on this extension different testing routines
-are possible.
+`src/Makefile.am`. Depending on this extension different testing
+routines are possible.
 
 Look at the definition of the `${EXT}_generate` commands in
 `Makefile.am` that produce the corresponding `*.EXT` file(s). Such a
@@ -179,9 +240,13 @@ fact, `build-setup.sh` simply calls
   * `deps.mk`
 
     Contains dependencies and targets of the testfiles from their
-    respective `*.test` sources. Can be generated via
+    respective `*.test` sources.
+
+    TODO: Can be generated via
 
         make -f Makefile.mk deps.mk
+
+    TODO: Explain format!
 
 Getting started
 ---------------

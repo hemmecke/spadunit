@@ -44,16 +44,17 @@ SpadUnit0(): with
     assertFalse: Boolean -> Void
   == add
     import from PrintPackage
+    sprint(x) ==> print(x::Symbol::OutputForm)
     throwException(): Void == EXIT_-WITH_-STATUS(1$Integer)$Lisp
 
     assertTrue(b: Boolean): Void ==
         b => void()
-        print("Expected true, but got false.")
+        sprint("Expected true, but got false.")
         throwException()
 
     assertFalse(b: Boolean): Void ==
         not b => void()
-        print("Expected false, but got true.")
+        sprint("Expected false, but got true.")
         throwException()
 
 
@@ -72,20 +73,21 @@ SpadUnit(T: SetCategory): with
     assertNotEquals: (T, T) -> Void
   == add
     import from PrintPackage
+    sprint(x) ==> print(x::Symbol::OutputForm)
     throwException(): Void == EXIT_-WITH_-STATUS(1$Integer)$Lisp
 
     assertEquals(x: T, y: T): Void ==
         x = y => void()
-        print("Expected equal values, but got the following.")
-        print("Value 1:")
+        sprint("Expected equal values, but got the following.")
+        sprint("Value 1:")
         print(x::OutputForm)
-        print("Value 2:")
+        sprint("Value 2:")
         print(y::OutputForm)
         throwException()
 
     assertNotEquals(x: T, y: T): Void ==
         not(x = y) => void()
-        print("Expected unequal values, but both values equal ...")
+        sprint("Expected unequal values, but both values equal ...")
         print(x::OutputForm)
         throwException()
 

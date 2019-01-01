@@ -26,11 +26,11 @@
 AC_PREREQ(2.68)
 AC_INIT(
   [SpadUnit],
-  [0.0.1],
+  [1.0],
   [ralf@hemmecke.org])
 
 # Sanity check
-AC_CONFIG_SRCDIR([build-setup.sh])
+AC_CONFIG_SRCDIR([spadunit.spad])
 
 # Certain configuration files are kept in the config subdirectory.
 AC_CONFIG_AUX_DIR(config)
@@ -83,11 +83,8 @@ AS_IF([${ascompiler} conftest.as > conftest.log 2>&1],
     AC_MSG_RESULT([ok])
 )
 
-# The ascompiler test is only relevant if we have .as files to compile.
-AS_IF([grep '^check_data_as.*\.as' testsrc/checkdata.mk > /dev/null],
-    [AS_IF([test "$result_ok" = "no"],
-        [AC_MSG_ERROR([ascompiler does not behave as expected.])],[])],
-    [])
+AS_IF([test "$result_ok" = "no"],
+    [AC_MSG_WARN([ascompiler does not behave as expected.])],[])
 
 AC_SUBST(ascompiler)
 
