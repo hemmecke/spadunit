@@ -1,16 +1,68 @@
 SpadUnit
 ========
 
-This testing framework is basically the standard
+SpadUnit is a testing framework. It is basically the standard
 [automake](https://www.gnu.org/software/automake/) test framework with
-parallel builds enabled. It is written for
+parallel builds enabled.
+It is written for
 [FriCAS](http://fricas.github.io), but is actually (relatively)
-independent of FriCAS, so that it can also made to work with
+independent of
+[FriCAS](http://fricas.github.io),
+so that it can also made to work with
 [Axiom](http://axiom-developer.org) and
-[OpenAxiom](http://open-axiom.org).
+[OpenAxiom](http://www.open-axiom.org).
 
-There are, however, a few features of FriCAS that must be available,
-see Section [PanAxiom Conditions](#panaxiom-conditions).
+SpadUnit allows to write testfiles in a simple input format.
+In fact, it *is* a in the format of an ordinary
+[FriCAS](http://fricas.github.io) `.input` file,
+but with testing function as defined in `src/spadunit.spad` enabled,
+namely
+
+     assertTrue:  Boolean -> Void
+     assertFalse: Boolean -> Void
+     assertEquals:    (T, T) -> Void
+     assertNotEquals: (T, T) -> Void
+
+where `T: SetCategory`, i.e., where `T` exports the following functions.
+
+    =: (T, T) -> Boolean
+    coerce: T -> OutputForm
+
+Note that the `assert...` functions are designed to exit a
+[FriCAS](http://fricas.github.io) session
+with a non-zero exit code if the assertion fails to hold.
+See Section [PanAxiom conditions](#panaxiom-conditions).
+
+**Example**
+
+    --test:set0
+    s: List Integer := [];
+    assertTrue(empty? s);
+    assertEquals(#s, 0)
+    --endtest
+
+For more detail see Section [The testfile format](#the-testfile-format).
+
+
+Prerequisites
+-------------
+
+Before you can work with SpadUnit, make sure you have a GNU automake
+and autoconf running in a recent version.
+Automake 1.15.1 and autoconf 2.69 are known to work,
+but the most important feature of automake that we are using is its
+[Parallel Test Harness](http://www.gnu.org/software/automake/manual/html_node/Simple-Tests.html).
+Thus, also slightly older versions should be OK.
+
+The executable `fricas` should be in your `PATH`.
+You can relax this condition, see Section
+[Important files](#important-files).
+
+If you are using SpadUnit with
+[Axiom](http://axiom-developer.org) or
+[OpenAxiom](http://www.open-axiom.org), then
+look into [PanAxiom conditions](#panaxiom-conditions).
+
 
 Installation
 ------------
@@ -30,25 +82,22 @@ You initialize SpadUnit by calling
 
     make PROJECT=/path/to/toplevel/projectdir TESTDIR=/path/to/test
 
-The path for `PROJECT` should be an absolute path pointing to the
-top-level directory of the project that you want to test.
-During `make check` SpadUnit looks for an optional
-executable `$PROJECT/prepare-spadunit` that is called in order to
-compile your project before the tests can be run.
+The path for `PROJECT` **must** be an **absolute** path pointing
+to the top-level directory of the project that you want to test.
+See Section
+[How SpadUnit works internally](#how-spadunit-works-internally)
+for more details.
 
-The directory `$TESTDIR` contains the directory that contains the 
+The variable `TESTDIR` should point to the directory that contains the
 test files of the form `*.input.test`.
 Look into `projects/fricas/test` for examples of such test files.
-
-If the test directory contains files with extension `.spad`, they
-will be compiled before the test files are run.
 
 If the parameter `TESTDIR` is missing from the `make` call,
 it is equivalent to `$PROJECT/test`.
 
 If the parameter `PROJECT` is missing, it defaults to
 `${pwd}/project`. In other words, if you have a project in
-`/path/to/project` with a subdirectory `/path/to/project/tests`
+`/path/to/project` with a subdirectory `/path/to/project/test`
 that contains the test files, then it is enough to say
 
     cd spadunit
@@ -70,306 +119,49 @@ your project in case anything changed.
 SpadUnit will automatically recreate the `.input` files from the
 `.input.test` files if it detects any modification.
 
+Other calling options are
+
+    make recheck
+
+and
+
+    make clean
+
+where the first will rerun the tests that have failed and
+the latter will completely remove the `build` subdirectory.
+
+**Example**
+
+SpadUnit comes with a little example project under `projects/fricas`.
+To try it out, issue the following:
+
+    cd spadunit
+    ln -s `pwd`/projects/fricas project
+    make
+    make -s check
+
 
 Further notes
 -------------
-
-The test framework takes its tests from `*.EXT.test` files where `EXT`
-is one of the extensions mentioned in `TEST_EXTENSIONS` in
-`src/Makefile.am`. Depending on this extension different testing
-routines are possible.
-
-Look at the definition of the `${EXT}_generate` commands in
-`Makefile.am` that produce the corresponding `*.EXT` file(s). Such a
-file is used during the test as `${EXT}_LOG_COMPILER FILE.${EXT}` It's
-possible to give additional parameters, see
-[automake: Parallel Test Harness](http://www.gnu.org/software/automake/manual/html_node/Simple-Tests.html).
 
 The test framework has mainly been developed to check commands from
 `*.input` files (see Section
 [The testfile format](#the-testfile-format)). However, any file in the
 test directory that ends in `.spad` or `.as` will be compiled before
 any test is started. Thus, the framework can be used to quickly check
-whether modifying an existing `.spad` file under `src/algebra` of
-PanAxiom passes a number of tests without recompiling all of PanAxiom.
-For that, simply put the respective `.spad` file into the `testsrc`
+whether modifying an existing `.spad` file under `src/algebra` of the
+[FriCAS](http://fricas.github.io) source code tree passes a number
+of tests without recompiling all of [FriCAS](http://fricas.github.io).
+For that, simply put the respective `.spad` file into the `$TESTDIR`
 directory, modify it accordingly, and provide corresponding
 `*.input.test` files that test the (new/modified) features.
 
-Since automake requires its variables, in particular the `TESTS` and
-`XFAIL_TESTS` variables, to be static, we provide a `Makefile.mk` that
-contains a target that generates values for these variables into a
-number of `.mk` files that will be included into `Makefile.am`.
+In order to work with `.as` files you must have the
+[Aldor](https://github.com/pippijn/aldor) compiler available
+and have a compiled `libaxiom.al`.
+The `aldor` executable must be in your `PATH`, but see Section
+[Important files](#important-files).
 
-Those `.mk` files could be maintained by hand, but I find this too
-troublesome and thus provide `Makefile.mk` as a convenience to
-developers who add tests and therefore need to regenerate these files.
-
-Manifest
---------
-
-A bare minimum of the testing framework contains the following files.
-
-  * `Makefile.am`
-
-    The automake Makefile. Used to generate the tests from the *.test
-    files.
-
-  * `Makefile.mk`
-
-    Makefile to generate and clean tests.mk, xfailtests.mk, and deps.mk.
-
-  * `build-setup.sh`
-
-    Execution of that file produces `Makefile.in` from `Makefile.am`
-    and also produce a number of other files that are used during
-    configure time.
-
-  * `clean-setup.sh`
-
-    Cleans all files that are generated by `build-setup.sh`.
-
-  * `configure.ac`
-
-    The autoconf file.
-
-  * `spadunit.spad`
-
-    This defines a few functions for unit testing. In particular, it
-    defines
-
-        assertTrue:  Boolean -> Void
-        assertFalse: Boolean -> Void
-        assertEquals:    (T, T) -> Void
-        assertNotEquals: (T, T) -> Void
-
-    where `T: SetCategory`, i.e., where `T` exports `=: (T, T) ->
-    Boolean` and `coerce: T -> OutputForm`.
-
-    Note that the `assert...` functions are designed exit PanAxiom
-    with a non-zero exit code if the assertion fails to hold. See
-    Section [PanAxiom Conditions](#panaxiom-conditions).
-
-  * `interpreter`
-
-    Script to call the PanAxiom interpreter with a `.input` file like
-
-        interpreter foo.input
-
-    `interpreter` exits with a zero exit code on success and must
-    abort with non-zero exit code if an error occurs.
-
-  * `spadcompiler`
-
-    Compile a `.spad` file so that the respective constructors from
-    that file it can be used via `)library foo` from inside the
-    interpreter.
-
-        spadcompiler foo.spad
-
-    `spadcompiler` exits with a zero exit code on success and must
-    abort with non-zero exit code if the compilation fails.
-
-  * `ascompiler`
-
-    Compile a `.as` file so that the respective constructors from
-    that file it can be used via `)library foo` from inside the
-    interpreter.
-
-        ascompiler foo.as
-
-    `ascompiler` exits with a zero exit code on success and must abort
-    with non-zero exit code if the compilation fails.
-
-The files with the tests live under a directory `testsrc`. In fact,
-`testsrc` is a link to a directory of the sources. The directory can
-be given as an argument to the script `buildsetup.sh`. That script
-then creates the respective link. If no argument is given a link
-`testsrc` (pointing to `src`) is created.
-
-  * `src/*.input.test`
-
-    The testfiles that contain tests to be run in the interpreter. See
-    Section [The testfile format](#the-testfile-format) for how these
-    files are structured.
-
-  * `src/*.spad` (optional)
-
-    SPAD files that will be compiled before any test is run.
-
-  * `src/*.as` (optional)
-
-    [Aldor](https://github.com/pippijn/aldor) files that will be
-    compiled before any test is run.
-
-The following files are created during the run of `build-setup.sh`. In
-fact, `build-setup.sh` simply calls
-
-    make -f Makefile.mk
-
-  * `tests.mk`
-
-    Contains a definition of the `TESTS` variable. The contents is
-    extracted from the `--test:` lines in the `*.input.test` files.
-    `tests.mk` will be included into `Makefile.am`.
-
-    Can be generated via
-
-        make -f Makefile.mk tests.mk
-
-  * `xfailtests.mk`
-
-    Contains a definition of the `XFAIL_TESTS` variable. The contents
-    is extracted from the `--test:xfail-` lines in the `*.input.test`
-    files. `xfailstests.mk` will be included into `Makefile.am`.
-
-    Can be generated via
-
-        make -f Makefile.mk xfailtests.mk
-
-  * `checkdata.mk`
-
-    Contains a definition of the `check_DATA` variable. These are
-    files that are made before any test will be run. This concerns
-    compilation of `.spad` and `.as` files.
-
-    Can be generated via
-
-        make -f Makefile.mk checkdata.mk
-
-  * `deps.mk`
-
-    Contains dependencies and targets of the testfiles from their
-    respective `*.test` sources.
-
-    TODO: Can be generated via
-
-        make -f Makefile.mk deps.mk
-
-    TODO: Explain format!
-
-Getting started
----------------
-
-As a developer you should have
-[automake](https://www.gnu.org/software/automake/),
-[autoconf](https://www.gnu.org/software/autoconf/),
-[GNU make](http://www.gnu.org/software/make/), and
-[perl](https://www.perl.org/) installed.
-
-For simplicity, we asume here (and in the following) that the SpadUnit
-sources are located under `$SPADUNITDIR`.
-
-
-Usually, the testfiles (`*.input.test`) and the prerequisites
-(`*.spad` and `*.as`) live under the directory `src`, but can, in
-fact, live anywhere in the file system.
-
-Call
-
-    cd $SPADUNITDIR
-    ./build-setup.sh /PATH/TO/INPUT-TEST-FILES
-
-in order to create a link `testsrc` (which will point to
-`/PATH/TO/INPUT-TEST-FILES`) and the respective `*.mk` files (see
-Section [Manifest](#manifest)).
-
-The call
-
-    ./build-setup.sh
-
-is equivalent to
-
-    ./build-setup.sh src
-
-You can run the test in the source tree, i.e. inside the directory
-where this `README.md` resides, but it is suggested to use a separate
-directory for the generated files.
-
-    cd ~/mytest
-    $SPADUNITDIR/configure
-    make check
-
-Depending on the number of cores, it's possible to use
-
-    make -j8 check
-
-to run the checks in parallel (here with 8 concurrent processes).
-
-Advanced usage (several test source directories)
-------------------------------------------------
-
-SpadUnit can maintain several test directories with one installation.
-However, only one of these test directories can be active at one time.
-
-Suppose there are two directories with `*.input.test` sources called
-`src` and `/PATH/TO/ANOTHER/DIRECTORY/WITH/TESTFILES`. Then
-
-    cd $SPADUNITDIR
-    ./build-setup.sh src
-    ./configure
-    make check
-
-prepares and runs the check inside the `src` directory, and
-
-    cd $SPADUNITDIR
-    ./build-setup.sh /PATH/TO/ANOTHER/DIRECTORY/WITH/TESTFILES
-    ./configure
-    make check
-
-runs the check inside `/PATH/TO/ANOTHER/DIRECTORY/WITH/TESTFILES`.
-
-Note that the call of `build-setup.sh` changes the link `testsrc`. In
-fact, one simply has to create the link `testsrc` appropriately.
-
-Advanced usage (out-of-source build)
-------------------------------------
-
-Similar to the previous section, tests can run in a completely
-separate directory. Suppose SpadUnit sources are under
-`$HOME/spadunit`. Then use
-
-    cd $SPADUNITDIR
-    ./build-setup.sh
-    mkdir $HOME/tests1
-    cd $HOME/test1
-    $SPADUNITDIR/configure
-    make -j8 ckeck
-
-to run the test inside `$HOME/test1`. So all the `.log` and `.trs`
-files are generated there.
-
-Note, however, that `build-setup.sh` writes the `.mk` files into
-`$SPADUNITDIR/testsrc` where this (in the above case) is a link to
-`$SPADUNITDIR/src`.
-
-Of course, out-of-source (or VPATH) builds can be combined with
-several test source directories as described in the previous section.
-
-Removing generated files
-------------------------
-
-In the build directory where `make check` was called, run
-
-    make clean
-
-or any of the other common `clean` targets like `mostly-clean`,
-`distclean`, `maintainer-clean`, to remove the generated test files.
-
-Running
-
-    cd $SPADUNITDIR
-    make -f Makefile.mk clean
-
-removes all files that are generated by `Makefile.mk`.
-
-Running
-
-    cd $SPADUNITDIR
-    ./clean-setup.sh
-
-removes anything that was generated during the run of `build-setup.sh`
-inside the `testsrc` directory and also removes the link `testsrc`.
 
 The testfile format
 -------------------
@@ -395,7 +187,7 @@ following convention.
   * Duplicates of `--test:NAME` with identical `NAME` part per file are
     joined together and executed as one chunk.
 
-  * Optionally each .test file can contain two special chunks, namely
+  * Optionally each `.test` file can contain two special chunks, namely
 
         --setup
         LINES OF SETUP CODE
@@ -407,29 +199,123 @@ following convention.
         LINES OF TEAR DOWN CODE
         --endteardown
 
-   The `--` must appear in the first position of the line.
+     The `--` must appear in the first position of the line.
 
-   If existing, these are prepended and appended to each test of the
-   respective `*.input.test` file and should contain preparation and
-   clean-up code. For example, some test might write files. The
-   teardown code should make sure that everything is cleaned up again.
+     If existing, these are prepended and appended to each test of the
+     respective `*.input.test` file and should contain preparation and
+     clean-up code. For example, some test might write files.
 
-PanAxiom Conditions
+     The teardown code should make sure that everything is cleaned up again.
+
+     **NOTE:** The teardown code is currently being ignored, i.e., that
+     feature is not implemented.
+
+
+Important files
+---------------
+
+  * `src/interpreter`
+
+    Script to call the PanAxiom interpreter with a `.input` file like
+
+        interpreter foo.input
+
+    `interpreter` exits with a zero exit code on success and **must**
+    abort with non-zero exit code if an error occurs.
+
+  * `src/spadcompiler`
+
+    Compile a `.spad` file so that the respective constructors from
+    that file can be used via `)library foo` from inside the
+    interpreter.
+
+        spadcompiler foo.spad
+
+    `spadcompiler` exits with a zero exit code on success and **must**
+    abort with non-zero exit code if the compilation fails.
+
+  * `src/ascompiler`
+
+    Compile a `.as` file so that the respective constructors from
+    that file can be used via `)library foo` from inside the
+    interpreter.
+
+        ascompiler foo.as
+
+    `ascompiler` exits with a zero exit code on success and **must**
+    abort with non-zero exit code if the compilation fails.
+
+How SpadUnit works internally
+-----------------------------
+
+By design SpadUnit creates a (new) subdirectory `build`, if it does
+not yet exist. Otherwise it (re-)uses every data that lies there.
+SpadUnit never writes a file outside this `build` directory.
+
+After running
+
+    make PROJECT=/path/to/toplevel/projectdir TESTDIR=/path/to/test
+
+there will be two subdirectories (which are actually symbolic links),
+namely
+
+    build/p -> $PROJECT
+    build/t -> $TESTDIR
+
+The `build` directory is the working directory for running any
+compilation relevant for SpadUnit.
+
+SpadUnit first runs
+
+    cd build
+    p/prepare-spadunit
+
+if `prepare-spadunit` exists.
+If needed, this program can write a file `loadlibs.input` into
+the `build` directory.
+If SpadUnit find `loadlibs.input`, it reads that file before
+a test is executed.
+
+**Example for a prepare-spad shell script**
+
+    # Assume that the target 'compile-spad' put all things into
+    # the 'tmp' subdirectory of the project directory including
+    # a file 'projectlibs.input' with a list of `)lib' commands
+    # and a file 'projectmacros.input' with common macros.
+
+    # Only change the directory in a subshell.
+    (cd p; make compile-spad)
+
+    cat <<EOF > loadlibs.input
+    )cd p/tmp
+    )read projectlibs
+    )read projectmacros
+    EOF
+
+
+After calling `prepare-spadunit`, SpadUnit creates the
+`*.input` files from the respective
+`--test:NAME` entries in the `t/*.input.test` files and
+compiles any `t/*.spad` and any `t/*.as` files.
+
+
+PanAxiom conditions
 -------------------
 
 In order to use SpadUnit as is, PanAxiom must implement a Lisp
-function `exit-with-status` that can be called from a `spadunit.spad`
+function `exit-with-status` that can be called from `spadunit.spad`
 as `EXIT_-WITH_-STATUS(1$Integer)$Lisp`. See
 [fricas-lisp.lisp](https://github.com/fricas/fricas/blob/master/src/lisp/fricas-lisp.lisp#L210)
 for how such a function is defined in FriCAS.
 
 The scripts `interpreter`, `spadcompiler`, and `ascompiler` must
-return a non-zero exit code if an error occurs. In FriCAS, that
+return a non-zero exit code if an error occurs.
+In [FriCAS](http://fricas.github.io), that
 behaviour can be enabled by executing
 
     )set breakmode quit
 
-Known Issues
+Known issues
 ------------
 
   * Spelling errors are not caught. For example, a test like
