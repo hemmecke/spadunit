@@ -1,54 +1,6 @@
 # This Makefile should be run inside the toplevel directory after a
 # checkout of the repository. It assumes that the autotools (autoconf,
 # automake) are installed.
-#
-# All generated files and are put into a (newly created) subdirectory
-# "build". In this build directory there will also be links to the
-# directory of the test files (that link is named "t") and the
-# actual (external) project that is to be testet (that link is named "p").
-#
-# Call like
-#
-#   make PROJECT=/path/to/toplevel/projectdir TESTDIR=/path/to/test
-#   make check
-#
-# If PROJECT is missing, then PROJECT=`pwd`/project.
-# If you give PROJECT=P and P is not an absolute path then it is
-# equivalent to PROJECT=`pwd`/projects/P.
-# Inside this directory, the Makefile is looking for an (optional)
-# script with name 'prepare-spadunit'.
-#
-# As a convenience, calling
-#
-#   make foo TESTDIR=/path/to/test
-#
-# is equivalent to
-#
-#   make PROJECT=`pwd`/projects/foo TESTDIR=/path/to/test
-#
-# if the folder `pwd`/projects/foo exists.
-#
-# If TESTDIR is missing it defaults to TESTDIR=p/test, which is
-# equivalent to TESTDIR=${PROJECT}/test.
-# Inside TESTDIR the testfiles are expected.
-#
-# The PROJECT directory will be linked to build/p.
-# The TESTDIR directory will be linked to build/t.
-#
-# In other, words if the "test" directory is a direct subdir of the
-# project directory then one can link it to project and does not
-# have to worry about the PROJECT and TESTDIR variable any further.
-#
-#   ln -s ${PROJECT} project
-#   make
-#   make check
-#
-# The script "prepare-spadunit" should compile any .spad file and write a
-# file "loadlibs.input" into the current directory. When ")read
-# loadlibs.input" is executed inside a FriCAS session with the current
-# working directory being "build", it should read all the libraries
-# from the project that are relevant to execute the tests from the
-# subdirectory "t".
 
 HERE := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 PROJECT = ${HERE}project
