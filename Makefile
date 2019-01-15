@@ -13,6 +13,8 @@
 #   make check
 #
 # If PROJECT is missing, then PROJECT=`pwd`/project.
+# If you give PROJECT=P and P is not an absolute path then it is
+# equivalent to PROJECT=`pwd`/projects/P.
 # Inside this directory, the Makefile is looking for an (optional)
 # script with name 'prepare-spadunit'.
 #
@@ -67,7 +69,3 @@ check recheck: update
 # We add dependencies to make sure that we are in the right directory.
 clean: LICENSE Makefile src
 	rm -rf build
-
-###################################################################
-.PHONY: project.link testdir.link
-project.link:

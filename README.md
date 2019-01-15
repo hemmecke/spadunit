@@ -82,10 +82,10 @@ You initialize SpadUnit by calling
 
     make PROJECT=/path/to/toplevel/projectdir TESTDIR=/path/to/test
 
-The path for `PROJECT` **must** be an **absolute** path pointing
-to the top-level directory of the project that you want to test.
-See Section
-[How SpadUnit works internally](#how-spadunit-works-internally)
+If you give `PROJECT=P` and `P` is not an *absolute path* pointing to
+the top-level directory of the project that you want to test, then it
+is equivalent to `${pwd}/projects/P`.
+See Section [How SpadUnit works internally](#how-spadunit-works-internally)
 for more details.
 
 The variable `TESTDIR` should point to the directory that contains the
