@@ -84,7 +84,19 @@ You initialize SpadUnit by calling
 
 If you give `PROJECT=P` and `P` is not an *absolute path* pointing to
 the top-level directory of the project that you want to test, then it
-is equivalent to `${pwd}/projects/P`.
+is equivalent to `$(pwd)/projects/P`.
+
+As a convenience, calling
+
+    make P TESTDIR=/path/to/test
+
+is equivalent to
+
+    make PROJECT=P TESTDIR=/path/to/test
+
+if the folder `$(pwd)/projects/P` exists and `P` is not one of the
+other known targets of the Makefile.
+
 See Section [How SpadUnit works internally](#how-spadunit-works-internally)
 for more details.
 
@@ -96,13 +108,20 @@ If the parameter `TESTDIR` is missing from the `make` call,
 it is equivalent to `$PROJECT/test`.
 
 If the parameter `PROJECT` is missing, it defaults to
-`${pwd}/project`. In other words, if you have a project in
+`$(pwd)/project`. In other words, if you have a project in
 `/path/to/project` with a subdirectory `/path/to/project/test`
 that contains the test files, then it is enough to say
 
     cd spadunit
     ln -s /path/to/project project
     make
+
+or, if your project is called `foo` and lives inside the
+`projects` subdirectory of spadunit, then you can simply type
+
+    make foo
+
+to make your project known to the SpadUnit testing framework.
 
 In order to actually run the tests, simply call
 
@@ -136,8 +155,7 @@ SpadUnit comes with a little example project under `projects/fricas`.
 To try it out, issue the following:
 
     cd spadunit
-    ln -s `pwd`/projects/fricas project
-    make
+    make fricas
     make -s check
 
 

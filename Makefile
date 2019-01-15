@@ -18,6 +18,16 @@
 # Inside this directory, the Makefile is looking for an (optional)
 # script with name 'prepare-spadunit'.
 #
+# As a convenience, calling
+#
+#   make foo TESTDIR=/path/to/test
+#
+# is equivalent to
+#
+#   make PROJECT=`pwd`/projects/foo TESTDIR=/path/to/test
+#
+# if the folder `pwd`/projects/foo exists.
+#
 # If TESTDIR is missing it defaults to TESTDIR=p/test, which is
 # equivalent to TESTDIR=${PROJECT}/test.
 # Inside TESTDIR the testfiles are expected.
@@ -48,14 +58,16 @@ MKDIR_P = mkdir -p
 
 # We generate any file inside a (newly created) "build" directory.
 all: set-directories
-	${MAKE} update
 
 set-directories:
+	if test -e build; then \
+	  echo "** The directory 'build' already exists. **"; \
+	  echo "** Call 'make clean' first. **"; \
+	  exit 1; \
+	fi
 	${MKDIR_P} build
 	cp -a src/* build/
-	-unlink build/p
 	cd build && test -d ${PROJECT} && ln -s ${PROJECT} p
-	-unlink build/t
 	cd build && test -d ${TESTDIR} && ln -s ${TESTDIR} t
 
 update:
@@ -69,3 +81,11 @@ check recheck: update
 # We add dependencies to make sure that we are in the right directory.
 clean: LICENSE Makefile src
 	rm -rf build
+
+%:
+	P=${HERE}projects/$@; \
+	if test -d $$P; then \
+	  ${MAKE} PROJECT=$$P set-directories; \
+	else \
+	  echo "Target or project unknown."; exit 1; \
+	fi
