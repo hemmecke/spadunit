@@ -176,7 +176,7 @@ directory, modify it accordingly, and provide corresponding
 
 In order to work with `.as` files you must have the
 [Aldor](https://github.com/pippijn/aldor) compiler available
-and have a compiled `libaxiom.al`.
+and have a compiled `libfricas.al`.
 The `aldor` executable must be in your `PATH`, but see Section
 [Important files](#important-files).
 
