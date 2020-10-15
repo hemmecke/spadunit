@@ -36,7 +36,7 @@
 # We need PERL for this Makefile.
 PERL=perl
 
-# Where are all the *.test, *.spad, and *.as files found?
+# Where are all the *-test, *.spad, and *.as files found?
 testsrc=t
 
 # The variable TEST_EXTENSIONS should be identical to what can be
@@ -55,11 +55,12 @@ configure: tests.list ${MKFILES}
 clean:
 	-rm ${patsubst %,${testsrc}/%,${MKFILES} tests.list}
 
-tests.list: ${wildcard ${patsubst %,${testsrc}/*%.test, ${TEST_EXTENSIONS}}}
+# Testfiles are files that end in "-test". Note "minus" not "dot".
+tests.list: ${wildcard ${patsubst %,${testsrc}/*%-test, ${TEST_EXTENSIONS}}}
 	echo "Generating from '${^}'"
 	${PERL} \
 	  -e 'while(<>) { if (s/^--test://) {' \
-	  -e '  chomp; $$f = $${ARGV}; $$f =~ s/\.test$$//;' \
+	  -e '  chomp; $$f = $${ARGV}; $$f =~ s/\-test$$//;' \
 	  -e '  $$f =~ m"${testsrc}/(.*)\.([^.]+)$$";' \
 	  -e '  print "$$2\t$$1\t$$_\n"' \
 	  -e '}}' $^ | sort -u > $@
@@ -87,7 +88,7 @@ xfailtests.mk: tests.list
 	  -e 'print "\n"' $< >> $@
 
 # Generate rules for each test. Make sure the file depends
-# on the corresponding .test source file. We assume that for each
+# on the corresponding "-test" source file. We assume that for each
 # entry in TEST_EXTENSIONS there is a corresponding definition of a
 # EXTENSION_generate macro (see, for example, input_generate in
 # Makefile.am). In general, these macros should be defined in
@@ -101,7 +102,7 @@ rules.mk: tests.list
 	${PERL} \
 	  -e 'while(<>) {' \
 	  -e '  /(\S+)\t(\S+)\t(\S+)/; $$e=$$1; $$f=$$2; $$t=$$3;' \
-	  -e '  print "$$f.$$t.$$e: ${testsrc}/$$f.$$e.test spadunit.log; \$$($${e}_generate)\n";' \
+	  -e '  print "$$f.$$t.$$e: ${testsrc}/$$f.$$e-test spadunit.log; \$$($${e}_generate)\n";' \
 	  -e '}' \
 	  $< >> $@
 
