@@ -101,7 +101,7 @@ See Section [How SpadUnit works internally](#how-spadunit-works-internally)
 for more details.
 
 The variable `TESTDIR` should point to the directory that contains the
-test files of the form `*.input.test`.
+test files of the form `*.input-test`.
 Look into `projects/fricas/test` for examples of such test files.
 
 If the parameter `TESTDIR` is missing from the `make` call,
@@ -136,7 +136,7 @@ Note that `$PROJECT/prepare-spad` is called each time when
 your project in case anything changed.
 
 SpadUnit will automatically recreate the `.input` files from the
-`.input.test` files if it detects any modification.
+`.input-test` files if it detects any modification.
 
 Other calling options are
 
@@ -172,7 +172,7 @@ whether modifying an existing `.spad` file under `src/algebra` of the
 of tests without recompiling all of [FriCAS](http://fricas.github.io).
 For that, simply put the respective `.spad` file into the `$TESTDIR`
 directory, modify it accordingly, and provide corresponding
-`*.input.test` files that test the (new/modified) features.
+`*.input-test` files that test the (new/modified) features.
 
 In order to work with `.as` files you must have the
 [Aldor](https://github.com/pippijn/aldor) compiler available
@@ -184,7 +184,7 @@ The `aldor` executable must be in your `PATH`, but see Section
 The testfile format
 -------------------
 
-The code chunks of testfiles (`*.input.test`) must follow the
+The code chunks of testfiles (`*.input-test`) must follow the
 following convention.
 
   * Each test is written in a chunk of the following pattern.
@@ -205,7 +205,7 @@ following convention.
   * Duplicates of `--test:NAME` with identical `NAME` part per file are
     joined together and executed as one chunk.
 
-  * Optionally each `.test` file can contain two special chunks, namely
+  * Optionally each `.input-test` file can contain two special chunks, namely
 
         --setup
         LINES OF SETUP CODE
@@ -220,7 +220,7 @@ following convention.
      The `--` must appear in the first position of the line.
 
      If existing, these are prepended and appended to each test of the
-     respective `*.input.test` file and should contain preparation and
+     respective `*.input-test` file and should contain preparation and
      clean-up code. For example, some test might write files.
 
      The teardown code should make sure that everything is cleaned up again.
@@ -313,7 +313,7 @@ a test is executed.
 
 After calling `prepare-spadunit`, SpadUnit creates the
 `*.input` files from the respective
-`--test:NAME` entries in the `t/*.input.test` files and
+`--test:NAME` entries in the `t/*.input-test` files and
 compiles any `t/*.spad` and any `t/*.as` files.
 
 
