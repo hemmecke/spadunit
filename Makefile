@@ -8,6 +8,12 @@ TESTDIR = p/test
 PREPARE = p/prepare-spadunit
 MKDIR_P = mkdir -p
 
+# Tests introduced via "--test:NAME" are supposed to take
+# less than 10 seconds. Longer tests should be marked via
+# "--test:timexxxx-NAME" where xxxx are digits and represent
+# approximately how many seconds the test runs.
+TESTTIME = 10
+
 # We generate any file inside a (newly created) "build" directory.
 all: set-directories
 
@@ -24,10 +30,12 @@ set-directories:
 
 update:
 	+cd build && if test -x ${PREPARE}; then ${PREPARE}; fi
-	cd build && ${MAKE} -f Makefile.mk
+	cd build && ${MAKE} -f Makefile.mk clean
+	cd build && ${MAKE} -f Makefile.mk TESTTIME="${TESTTIME}"
 
 # Just forward the actual "make check" call to the build subdir.
-check recheck: update
+check recheck:
+	make TESTTIME="${TESTTIME}" update
 	cd build && $(MAKE) $@
 
 # We add dependencies to make sure that we are in the right directory.
