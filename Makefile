@@ -38,6 +38,15 @@ check recheck:
 	make TESTTIME="${TESTTIME}" update
 	cd build && $(MAKE) $@
 
+timelog:
+	cd build && perl -n \
+	  -e 'if (/^DATETIMEbeg (.*) (.*) (\d*) (.*)/) {' \
+	  -e '  $$d=$$1; $$t=$$2; $$s=$$3; $$f=$$4;};' \
+	  -e 'if (/^DATETIMEend (.*) (.*) (\d*) (.*)/) {' \
+	  -e '  printf("%s %s %6d %s\n", $$d, $$t, $$3-$$s, $$f);}' \
+	  *.log \
+	| sort -nk3
+
 # We add dependencies to make sure that we are in the right directory.
 clean: LICENSE Makefile src
 	rm -rf build

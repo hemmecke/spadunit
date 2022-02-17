@@ -71,7 +71,8 @@ check_SCRIPTS = interpreter ascompiler spadcompiler
 .SECONDARY: $(TESTS) # don't delete intermediate .input files
 define input_generate
     # setup code
-    echo -e ")library SPADZERO\n)library SPADUNIT" > $@
+    echo ')sys date +"DATETIMEbeg %F %H:%M:%S %s $@"' > $@
+    echo -e ")library SPADZERO\n)library SPADUNIT" >> $@
     if test -r loadlibs.input; then \
       echo -e ")read loadlibs.input\n)cd ${abs_builddir}" >> $@; \
     fi
@@ -88,6 +89,7 @@ define input_generate
     # TODO: Tear down code should be called without having an effect on the
     # outcome of the actual test.
     # awk '/^--teardown$$/,/^--endteardown$$/ {print}' $< >>$@
+    echo ')sys date +"DATETIMEend %F %H:%M:%S %s $@"' >> $@
 endef
 
 ###################################################################
