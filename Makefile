@@ -38,6 +38,11 @@ check recheck:
 	make TESTTIME="${TESTTIME}" update
 	cd build && $(MAKE) $@
 
+checkfile:
+	make TESTTIME="${TESTTIME}" update
+	TESTS="$(shell sed -n 's/^input\t$(FILE)\t\(.*\)$$/$(FILE).\1.input/p;' build/tests.list)" && \
+	cd build && $(MAKE) TESTS="$$TESTS" check
+
 timelog:
 	cd build && perl -n \
 	  -e 'if (/^DATETIMEbeg (.*) (.*) (\d*) (.*)/) {' \
