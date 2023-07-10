@@ -45,7 +45,7 @@ SpadUnit0(): with
   == add
     import from PrintPackage
     sprint(x) ==> print(x::Symbol::OutputForm)
-    throwException(): Void == EXIT_-WITH_-STATUS(1$Integer)$Lisp
+    throwException(): Void == exit_with_status(1$Integer)$Lisp
 
     assertTrue(b: Boolean): Void ==
         b => void()
@@ -74,7 +74,7 @@ SpadUnit(T: SetCategory): with
   == add
     import from PrintPackage
     sprint(x) ==> print(x::Symbol::OutputForm)
-    throwException(): Void == EXIT_-WITH_-STATUS(1$Integer)$Lisp
+    throwException(): Void == exit_with_status(1$Integer)$Lisp
 
     assertEquals(x: T, y: T): Void ==
         x = y => void()
