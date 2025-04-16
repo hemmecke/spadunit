@@ -10,7 +10,7 @@ Z ==> Integer
 I ==> SingleInteger
 
 )abbrev domain TXHASH TestXHashTable
-TestXHashTable(Key: SetCategory, Entry: Type):
+TestXHashTable(Key: Hashable, Entry: Type):
   Join(TableAggregate(Key, Entry), finiteAggregate, shallowlyMutable) with
     bucketSize: % -> Z
         ++ bucketSize(x) returns the number of buckets in the intenal
