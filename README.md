@@ -140,23 +140,35 @@ SpadUnit will automatically recreate the `.input` files from the
 
 Other calling options are
 
+    make checkfile FILE=list   # only basename, no extension
     make recheck
 
 and
 
     make clean
 
-where the first will rerun the tests that have failed and
-the latter will completely remove the `build` subdirectory.
+where the first will run all tests from a particular file, the second
+will rerun the tests that have failed and the latter will completely
+remove the `build` subdirectory.
 
-**Example**
+**Examples**
 
 SpadUnit comes with a little example project under `projects/fricas`.
 To try it out, issue the following:
 
     cd spadunit
     make fricas
-    make -s check
+    make -s check  # -s means "silent run"
+
+It is possible to run only certain tests by adding the tests via the
+`TESTS` variable.
+
+    make check TESTS='xhashtable.setelt1.input set.set2.input'
+
+To run all all tests from a particular file run the following,
+
+    make -j8 checkfile FILE=list
+
 
 
 Further notes
