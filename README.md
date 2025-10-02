@@ -5,16 +5,16 @@ SpadUnit is a testing framework. It is basically the standard
 [automake](https://www.gnu.org/software/automake/) test framework with
 parallel builds enabled.
 It is written for
-[FriCAS](http://fricas.github.io), but is actually (relatively)
+[FriCAS](https://fricas.github.io), but is actually (relatively)
 independent of
-[FriCAS](http://fricas.github.io),
+[FriCAS](https://fricas.github.io),
 so that it can also made to work with
-[Axiom](http://axiom-developer.org) and
+[Axiom](https://www.nongnu.org/axiom/) and
 [OpenAxiom](http://www.open-axiom.org).
 
 SpadUnit allows to write testfiles in a simple input format.
 In fact, it *is* a in the format of an ordinary
-[FriCAS](http://fricas.github.io) `.input` file,
+[FriCAS](https://fricas.github.io) `.input` file,
 but with testing function as defined in `src/spadunit.spad` enabled,
 namely
 
@@ -29,7 +29,7 @@ where `T: SetCategory`, i.e., where `T` exports the following functions.
     coerce: T -> OutputForm
 
 Note that the `assert...` functions are designed to exit a
-[FriCAS](http://fricas.github.io) session
+[FriCAS](https://fricas.github.io) session
 with a non-zero exit code if the assertion fails to hold.
 See Section [PanAxiom conditions](#panaxiom-conditions).
 
@@ -59,7 +59,7 @@ You can relax this condition, see Section
 [Important files](#important-files).
 
 If you are using SpadUnit with
-[Axiom](http://axiom-developer.org) or
+[Axiom](https://www.nongnu.org/axiom/) or
 [OpenAxiom](http://www.open-axiom.org), then
 look into [PanAxiom conditions](#panaxiom-conditions).
 
@@ -180,14 +180,14 @@ The test framework has mainly been developed to check commands from
 test directory that ends in `.spad` or `.as` will be compiled before
 any test is started. Thus, the framework can be used to quickly check
 whether modifying an existing `.spad` file under `src/algebra` of the
-[FriCAS](http://fricas.github.io) source code tree passes a number
-of tests without recompiling all of [FriCAS](http://fricas.github.io).
+[FriCAS](https://fricas.github.io) source code tree passes a number
+of tests without recompiling all of [FriCAS](https://fricas.github.io).
 For that, simply put the respective `.spad` file into the `$TESTDIR`
 directory, modify it accordingly, and provide corresponding
 `*.input-test` files that test the (new/modified) features.
 
 In order to work with `.as` files you must have the
-[Aldor](https://github.com/pippijn/aldor) compiler available
+[Aldor](https://github.com/aldorlang) compiler available
 and have a compiled `libfricas.al`.
 The `aldor` executable must be in your `PATH`, but see Section
 [Important files](#important-files).
@@ -334,13 +334,13 @@ PanAxiom conditions
 
 In order to use SpadUnit as is, PanAxiom must implement a Lisp
 function `exit-with-status` that can be called from `spadunit.spad`
-as `EXIT_-WITH_-STATUS(1$Integer)$Lisp`. See
-[fricas-lisp.lisp](https://github.com/fricas/fricas/blob/master/src/lisp/fricas-lisp.lisp#L210)
+as `exit_with_status(1$Integer)$Lisp`. See
+[fricas-lisp.lisp](https://github.com/fricas/fricas/blob/master/src/lisp/fricas-lisp.lisp#L166)
 for how such a function is defined in FriCAS.
 
 The scripts `interpreter`, `spadcompiler`, and `ascompiler` must
 return a non-zero exit code if an error occurs.
-In [FriCAS](http://fricas.github.io), that
+In [FriCAS](https://fricas.github.io), that
 behaviour can be enabled by executing
 
     )set breakmode quit
