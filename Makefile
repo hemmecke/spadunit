@@ -14,6 +14,10 @@ MKDIR_P = mkdir -p
 # approximately how many seconds the test runs.
 TESTTIME = 10
 
+# Tests that take less time than TESTTIMEMIN are excluded.
+TESTTIMEMIN = 0
+
+
 # We generate any file inside a (newly created) "build" directory.
 all: set-directories
 
@@ -31,15 +35,15 @@ set-directories:
 update:
 	+cd build && if test -x ${PREPARE}; then ${PREPARE}; fi
 	cd build && ${MAKE} -f Makefile.mk clean
-	cd build && ${MAKE} -f Makefile.mk TESTTIME="${TESTTIME}"
+	cd build && ${MAKE} -f Makefile.mk TESTTIME="${TESTTIME}" TESTTIMEMIN=${TESTTIMEMIN}
 
 # Just forward the actual "make check" call to the build subdir.
 check recheck:
-	make TESTTIME="${TESTTIME}" update
+	make TESTTIME="${TESTTIME}" TESTTIMEMIN=${TESTTIMEMIN} update
 	cd build && $(MAKE) $@
 
 checkfile:
-	make TESTTIME="${TESTTIME}" update
+	make TESTTIME="${TESTTIME}" TESTTIMEMIN=${TESTTIMEMIN} update
 	TESTS="$(shell sed -n 's/^input\t$(FILE)\t\(.*\)$$/$(FILE).\1.input/p;' build/tests.list)" && \
 	cd build && $(MAKE) TESTS="$$TESTS" check
 

@@ -84,9 +84,10 @@ tests.mk: tests.list
 	  -e '  /(\S+)\t(\S+)\t(\S+)/;' \
 	  -e '  $$name="$$3";' \
 	  -e '  $$tst="$$2.$$3.$$1";' \
-	  -e '  if ($$name=~/^time([0-9]+-)/) {' \
-	  -e '    if ("$$1" < ${TESTTIME}) {print "\\\n$$tst";}' \
-	  -e '  } else {print "\\\n$$tst";}' \
+	  -e '  if ($$name=~/^time([0-9]+-)/) {$$t=$$1} else {$$t=10};' \
+	  -e '  if (($$t > ${TESTTIMEMIN}) && ($$t <= ${TESTTIME})) {' \
+	  -e '    print "\\\n$$tst";' \
+	  -e '  }' \
 	  -e '}' \
 	  -e 'print "\n"' $< >> $@
 
